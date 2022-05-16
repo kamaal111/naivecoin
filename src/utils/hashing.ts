@@ -7,7 +7,7 @@ export const calculateHash = ({
   data,
 }: {
   index: number;
-  previousHash?: string;
+  previousHash: string | null | undefined;
   timestamp: number;
   data: string;
 }): string => {

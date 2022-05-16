@@ -26,15 +26,6 @@ export class Block {
 
     Object.freeze(this);
   }
-
-  public get hashPayload() {
-    return {
-      index: this.index,
-      previousHash: this.previousHash,
-      timestamp: this.timestamp,
-      data: this.data,
-    };
-  }
 }
 
 export default Block;
