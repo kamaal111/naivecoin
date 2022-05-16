@@ -10,6 +10,7 @@
     "compiledev": "tsc -w",
     "dev": "nodemon build/src/main.js",
     "test": "jest",
+    "test:cov": "jest --coverage",
     "lint": "gts lint",
     "clean": "gts clean",
     "fix": "gts fix",

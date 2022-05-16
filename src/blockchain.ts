@@ -70,3 +70,5 @@ export class BlockChain {
 
   public static GENESIS_BLOCK = GENESIS_BLOCK;
 }
+
+export default BlockChain;
