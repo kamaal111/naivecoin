@@ -26,6 +26,25 @@ export class Block {
 
     Object.freeze(this);
   }
+
+  public get hashPayload() {
+    return {
+      index: this.index,
+      previousHash: this.previousHash,
+      timestamp: this.timestamp,
+      data: this.data,
+    };
+  }
+
+  public get isValidBlockStructure() {
+    return (
+      typeof this.index === 'number' &&
+      typeof this.hash === 'string' &&
+      (typeof this.previousHash === 'string' || this.previousHash == null) &&
+      typeof this.timestamp === 'number' &&
+      typeof this.data === 'string'
+    );
+  }
 }
 
 export default Block;

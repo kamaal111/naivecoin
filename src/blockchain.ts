@@ -25,10 +25,9 @@ export class BlockChain {
   }
 
   public generateNextBlock(data: string) {
-    const previousBlock = this.getLatestBlock();
-    const index = previousBlock.index + 1;
+    const {index: previousIndex, hash: previousHash} = this.getLatestBlock();
+    const index = previousIndex + 1;
     const timestamp = Math.floor(Date.now() / 1000);
-    const previousHash = previousBlock.hash;
 
     const hashPayload = {
       index,
@@ -49,7 +48,24 @@ export class BlockChain {
   }
 
   private addToChain(block: Block) {
+    const isValid = this.isValidNewBlock(block);
+    if (!isValid) return;
+
     this.blocks.push(block);
+  }
+
+  private calculateHashForBlock(block: Block) {
+    return calculateHash(block.hashPayload);
+  }
+
+  private isValidNewBlock(block: Block) {
+    const previousBlock = this.getLatestBlock();
+    return (
+      block.isValidBlockStructure &&
+      previousBlock.index + 1 === block.index &&
+      previousBlock.hash === block.previousHash &&
+      block.hash === this.calculateHashForBlock(block)
+    );
   }
 
   public static GENESIS_BLOCK = GENESIS_BLOCK;

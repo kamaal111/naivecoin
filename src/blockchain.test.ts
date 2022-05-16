@@ -28,6 +28,8 @@ test('generating next block', () => {
 
   const data = 'new one';
   const newBlock = blockChain.generateNextBlock(data);
+
+  expect(blockChain.chainLength).toEqual(2);
   expect(newBlock.previousHash).toEqual(genesisBlock.hash);
   expect(newBlock.data).toEqual(data);
   expect(newBlock.index).toEqual(1);
