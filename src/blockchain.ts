@@ -47,24 +47,46 @@ export class BlockChain {
     return nextBlock;
   }
 
-  private addToChain(block: Block) {
-    const isValid = this.isValidNewBlock(block);
+  public isValidChain(blocks: Block[]) {
+    const isValidGenesisBlock =
+      blocks[0].stringify === BlockChain.GENESIS_BLOCK.stringify;
+    if (!isValidGenesisBlock) return false;
+
+    for (let index = 1; index < blocks.length; index += 1) {
+      const newBlock = blocks[index];
+      const previousBlock = blocks[index - 1];
+      if (!this.isValidNewBlock({newBlock, previousBlock})) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private addToChain(newBlock: Block) {
+    const previousBlock = this.getLatestBlock();
+    const isValid = this.isValidNewBlock({newBlock, previousBlock});
     if (!isValid) return;
 
-    this.blocks.push(block);
+    this.blocks.push(newBlock);
   }
 
   private calculateHashForBlock(block: Block) {
     return calculateHash(block.hashPayload);
   }
 
-  private isValidNewBlock(block: Block) {
-    const previousBlock = this.getLatestBlock();
+  private isValidNewBlock({
+    newBlock,
+    previousBlock,
+  }: {
+    newBlock: Block;
+    previousBlock: Block;
+  }) {
     return (
-      block.isValidBlockStructure &&
-      previousBlock.index + 1 === block.index &&
-      previousBlock.hash === block.previousHash &&
-      block.hash === this.calculateHashForBlock(block)
+      newBlock.isValidBlockStructure &&
+      previousBlock.index + 1 === newBlock.index &&
+      previousBlock.hash === newBlock.previousHash &&
+      newBlock.hash === this.calculateHashForBlock(newBlock)
     );
   }
 

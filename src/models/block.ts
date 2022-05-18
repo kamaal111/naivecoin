@@ -27,6 +27,10 @@ export class Block {
     Object.freeze(this);
   }
 
+  public get stringify() {
+    return JSON.stringify(this);
+  }
+
   public get hashPayload() {
     return {
       index: this.index,
