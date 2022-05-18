@@ -47,7 +47,23 @@ export class BlockChain {
     return nextBlock;
   }
 
-  public isValidChain(blocks: Block[]) {
+  public replaceChain(blocks: Block[]) {
+    if (!this.isValidChain(blocks) || blocks.length <= this.blocks.length) {
+      console.log('Received blockchain is invalid');
+      return;
+    }
+
+    console.log(
+      'Received blockchain is valid. Replacing current blockchain with received blockchain'
+    );
+
+    this.blocks = blocks;
+    this.broadcastChanges();
+  }
+
+  private broadcastChanges() {}
+
+  private isValidChain(blocks: Block[]) {
     const isValidGenesisBlock =
       blocks[0].stringify === BlockChain.GENESIS_BLOCK.stringify;
     if (!isValidGenesisBlock) return false;
