@@ -4,7 +4,7 @@ import * as logger from 'morgan';
 import BlockChain from '../blockchain';
 
 import contextMiddleware from '../middleware/contextMiddleware';
-import type {Context, Controller} from '../types';
+import type {AppRequest, Context, Controller} from '../types';
 
 const blockChain = new BlockChain();
 
@@ -42,24 +42,7 @@ class App {
 
     this.initializeControllers(controllers);
 
-    this.app.use((_request, response, next) => {
-      const statusCode = response.statusCode;
-      if (statusCode === 404) {
-        next();
-        return;
-      }
-
-      let message: string | undefined;
-      switch (statusCode) {
-        case 400:
-          message = 'Bad Request';
-          break;
-      }
-
-      response
-        .status(statusCode)
-        .json({details: message ?? 'Okey we messed up, please help!'});
-    });
+    this.app.use(this.errorHandler);
 
     this.app.use((_request, response) => {
       response.status(404).json({details: 'Not Found'});
@@ -70,6 +53,29 @@ class App {
     for (const controller of controllers) {
       this.app.use(controller.path, controller.router);
     }
+  }
+
+  private errorHandler(
+    _request: AppRequest,
+    response: express.Response,
+    next: express.NextFunction
+  ) {
+    const statusCode = response.statusCode;
+    if (statusCode === 404) {
+      next();
+      return;
+    }
+
+    let message: string | undefined;
+    switch (statusCode) {
+      case 400:
+        message = 'Bad Request';
+        break;
+    }
+
+    response
+      .status(statusCode)
+      .json({details: message ?? 'Okey we messed up, please help!'});
   }
 }
 
