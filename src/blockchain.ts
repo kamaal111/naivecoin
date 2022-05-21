@@ -90,7 +90,7 @@ class BlockChain {
   private addToChain(newBlock: Block) {
     const previousBlock = this.getLatestBlock();
     const isValid = this.isValidNewBlock({newBlock, previousBlock});
-    if (!isValid) return;
+    if (!isValid) throw new InvalidBlockError();
 
     this.blocks.push(newBlock);
   }
@@ -115,6 +115,20 @@ class BlockChain {
   }
 
   public static GENESIS_BLOCK = GENESIS_BLOCK;
+}
+
+export class BlockChainError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BlockChainError';
+  }
+}
+
+export class InvalidBlockError extends BlockChainError {
+  constructor() {
+    super('Invalid block provided');
+    this.name = 'InvalidBlockError';
+  }
 }
 
 export default BlockChain;
