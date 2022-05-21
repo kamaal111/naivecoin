@@ -33,14 +33,13 @@ class BlocksController implements Controller {
     response: Response,
     next: NextFunction
   ) {
-    const blockChain = request.context!.blockChain;
-
     const data = request.body?.data;
     if (typeof data !== 'string') {
       sendError(response, next)(400);
       return;
     }
 
+    const blockChain = request.context!.blockChain;
     const generateNextBlockResult = blockChain.generateNextBlock(data);
     if ('error' in generateNextBlockResult) {
       sendError(response, next)(400);
