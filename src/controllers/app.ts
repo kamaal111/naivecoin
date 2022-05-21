@@ -3,6 +3,7 @@ import * as logger from 'morgan';
 
 import BlockChain from '../blockchain';
 
+import contextMiddleware from '../middleware/contextMiddleware';
 import type {Context, Controller} from '../types';
 
 const blockChain = new BlockChain();
@@ -31,6 +32,7 @@ class App {
   private initializeMiddleware() {
     this.app.use(logger('dev'));
     this.app.use(express.json());
+    this.app.use(contextMiddleware(context));
   }
 
   private initializeRoutes(controllers: Controller[]) {

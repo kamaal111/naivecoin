@@ -1,7 +1,9 @@
 import {Router} from 'express';
-import type {Request, Response} from 'express';
+import type {Response} from 'express';
 
-class BlocksController {
+import type {AppRequest, Controller} from '../../types';
+
+class BlocksController implements Controller {
   public path = '/blocks';
   public router = Router();
 
@@ -14,11 +16,18 @@ class BlocksController {
     this.router.post('/', this.mineBlock);
   }
 
-  getBlocks(_request: Request, response: Response) {
-    response.send('blocks');
+  private getBlocks(request: AppRequest, response: Response) {
+    const blockChain = request.context?.blockChain.encodedObject();
+    if (blockChain == null) {
+      response.status(500);
+      response.json({details: 'Okey we messed up, please help!'});
+      return;
+    }
+
+    response.json(blockChain);
   }
 
-  mineBlock(_request: Request, response: Response) {
+  private mineBlock(_request: AppRequest, response: Response) {
     response.send('mine');
   }
 }
