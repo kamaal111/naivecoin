@@ -47,7 +47,7 @@ class BlocksController implements Controller {
       return;
     }
 
-    response.json({data});
+    response.json(generateNextBlockResult.value);
   }
 }
 

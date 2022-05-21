@@ -43,12 +43,22 @@ class App {
     this.initializeControllers(controllers);
 
     this.app.use((_request, response, next) => {
-      if (response.statusCode === 404) {
+      const statusCode = response.statusCode;
+      if (statusCode === 404) {
         next();
         return;
       }
 
-      response.status(500).json({details: 'Okey we messed up, please help!'});
+      let message: string | undefined;
+      switch (statusCode) {
+        case 400:
+          message = 'Bad Request';
+          break;
+      }
+
+      response
+        .status(statusCode)
+        .json({details: message ?? 'Okey we messed up, please help!'});
     });
 
     this.app.use((_request, response) => {
