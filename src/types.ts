@@ -1,10 +1,12 @@
-import type {Router as _Router, Response, Request, NextFunction} from 'express';
+import type {Router} from 'express';
 
-type Router = ReturnType<typeof _Router>;
-type RouterActions = {
-  res: Response;
-  req: Request;
-  next: NextFunction;
+import type BlockChain from './blockchain';
+
+export type Context = {
+  blockChain: BlockChain;
 };
-export type RouterParams<T extends 'get' | 'post'> = Parameters<Router[T]>[1] &
-  RouterActions;
+
+export type Controller = {
+  router: Router;
+  path: string;
+};

@@ -9,11 +9,15 @@ const GENESIS_BLOCK = new Block({
   data: 'The Genesis block!!!',
 });
 
-export class BlockChain {
-  private blocks: Block[];
+class BlockChain {
+  private _blocks: Block[];
 
   constructor() {
-    this.blocks = [BlockChain.GENESIS_BLOCK];
+    this._blocks = [BlockChain.GENESIS_BLOCK];
+  }
+
+  public get blocks() {
+    return this._blocks;
   }
 
   public get chainLength() {
@@ -57,8 +61,12 @@ export class BlockChain {
       'Received blockchain is valid. Replacing current blockchain with received blockchain'
     );
 
-    this.blocks = blocks;
+    this.setBlocks(blocks);
     this.broadcastChanges();
+  }
+
+  private setBlocks(blocks: Block[]) {
+    this._blocks = blocks;
   }
 
   private broadcastChanges() {}

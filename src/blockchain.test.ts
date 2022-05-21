@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import {BlockChain} from './blockchain';
+import BlockChain from './blockchain';
 import {calculateHash} from './utils/hashing';
 
 test('genesis block is hashed correctly', () => {

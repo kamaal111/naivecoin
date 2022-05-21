@@ -1,21 +1,11 @@
-import * as express from 'express';
-import * as logger from 'morgan';
-
-import blocksRoute from './routes/blocks';
-import notFound from './controllers/notFound';
-import root from './controllers/root';
+import App from './controllers/app';
+import BlocksController from './controllers/blocks/blocksController';
 
 import config from './config';
 
-const app = express();
+const blocksController = new BlocksController();
 
-app.use(logger('dev'));
-app.use(express.json());
+const controllers = [blocksController];
 
-app.get('/', root);
-app.use('/blocks', blocksRoute);
-app.use(notFound);
-
-app.listen(config.PORT, () => {
-  console.log(`listening on port ${config.PORT}`);
-});
+const app = new App({port: config.PORT, controllers});
+app.listen();
