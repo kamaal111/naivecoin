@@ -49,16 +49,6 @@ export class Block {
       typeof this.data === 'string'
     );
   }
-
-  public encodedObject() {
-    return {
-      index: this.index,
-      hash: this.hash,
-      previousHash: this.previousHash,
-      timestamp: this.timestamp,
-      data: this.data,
-    };
-  }
 }
 
 export default Block;

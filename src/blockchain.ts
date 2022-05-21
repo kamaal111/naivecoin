@@ -24,12 +24,6 @@ class BlockChain {
     return this.blocks.length;
   }
 
-  public encodedObject() {
-    return {
-      blocks: this.blocks.map(block => block.encodedObject()),
-    };
-  }
-
   public getLatestBlock() {
     return this.blocks[this.chainLength - 1];
   }

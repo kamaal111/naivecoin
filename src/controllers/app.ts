@@ -42,9 +42,17 @@ class App {
 
     this.initializeControllers(controllers);
 
+    this.app.use((_request, response, next) => {
+      if (response.statusCode === 404) {
+        next();
+        return;
+      }
+
+      response.status(500).json({details: 'Okey we messed up, please help!'});
+    });
+
     this.app.use((_request, response) => {
-      response.status(404);
-      response.json({details: 'Not Found'});
+      response.status(404).json({details: 'Not Found'});
     });
   }
 

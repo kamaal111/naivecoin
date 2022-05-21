@@ -1,6 +1,7 @@
 import {Router} from 'express';
-import type {Response} from 'express';
+import type {NextFunction, Response} from 'express';
 
+import sendError from '../../utils/sendError';
 import type {AppRequest, Controller} from '../../types';
 
 class BlocksController implements Controller {
@@ -16,11 +17,14 @@ class BlocksController implements Controller {
     this.router.post('/', this.mineBlock);
   }
 
-  private getBlocks(request: AppRequest, response: Response) {
-    const blockChain = request.context?.blockChain.encodedObject();
+  private getBlocks(
+    request: AppRequest,
+    response: Response,
+    next: NextFunction
+  ) {
+    const blockChain = request.context?.blockChain.blocks;
     if (blockChain == null) {
-      response.status(500);
-      response.json({details: 'Okey we messed up, please help!'});
+      sendError(response, next)(500);
       return;
     }
 
