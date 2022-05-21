@@ -57,5 +57,22 @@
       "pretty-quick — staged",
       "git add"
     ]
-  }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "transform": {
+      "^.+\\.(ts|tsx)?$": "ts-jest",
+      "^.+\\.(js|jsx)$": "babel-jest"
+    }
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/gts/",
+    "rules": {
+      "eqeqeq": "off"
+    }
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "build/"
+  ]
 }
