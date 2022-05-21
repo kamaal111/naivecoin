@@ -1,5 +1,5 @@
 import App from './controllers/app';
-import BlocksController from './controllers/blocks/blocksController';
+import BlocksController from './controllers/blocksController';
 
 import config from './config';
 

@@ -1,9 +1,9 @@
 import {Router} from 'express';
 import type {NextFunction, Response} from 'express';
 
-import sendError from '../../utils/sendError';
-import checkBlockChainMiddleware from '../../middleware/checkBlockChainMiddleware';
-import type {AppRequest, Controller} from '../../types';
+import sendError from '../utils/sendError';
+import checkBlockChainMiddleware from '../middleware/checkBlockChainMiddleware';
+import type {AppRequest, Controller} from '../types';
 
 class BlocksController implements Controller {
   public path = '/blocks';
