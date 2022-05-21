@@ -1,5 +1,7 @@
 import Block from './models/block';
+
 import {calculateHash} from './utils/hashing';
+import type {Result} from './types';
 
 const GENESIS_BLOCK = new Block({
   index: 0,
@@ -28,7 +30,7 @@ class BlockChain {
     return this.blocks[this.chainLength - 1];
   }
 
-  public generateNextBlock(data: string) {
+  public generateNextBlock(data: string): Result<Block, InvalidBlockError> {
     const {index: previousIndex, hash: previousHash} = this.getLatestBlock();
     const index = previousIndex + 1;
     const timestamp = Math.floor(Date.now() / 1000);
@@ -46,9 +48,12 @@ class BlockChain {
       hash,
     });
 
-    this.addToChain(nextBlock);
+    const addToChainResult = this.addToChain(nextBlock);
+    if ('error' in addToChainResult) {
+      return {ok: false, error: addToChainResult.error};
+    }
 
-    return nextBlock;
+    return {ok: true, value: nextBlock};
   }
 
   public replaceChain(blocks: Block[]) {
@@ -69,6 +74,10 @@ class BlockChain {
     this._blocks = blocks;
   }
 
+  private appendBlock(block: Block) {
+    this._blocks.push(block);
+  }
+
   private broadcastChanges() {}
 
   private isValidChain(blocks: Block[]) {
@@ -87,12 +96,15 @@ class BlockChain {
     return true;
   }
 
-  private addToChain(newBlock: Block) {
+  private addToChain(newBlock: Block): Result<void, InvalidBlockError> {
     const previousBlock = this.getLatestBlock();
-    const isValid = this.isValidNewBlock({newBlock, previousBlock});
-    if (!isValid) throw new InvalidBlockError();
 
-    this.blocks.push(newBlock);
+    const isValid = this.isValidNewBlock({newBlock, previousBlock});
+    if (!isValid) return {ok: false, error: new InvalidBlockError()};
+
+    this.appendBlock(newBlock);
+
+    return {ok: true, value: undefined};
   }
 
   private calculateHashForBlock(block: Block) {
@@ -117,7 +129,7 @@ class BlockChain {
   public static GENESIS_BLOCK = GENESIS_BLOCK;
 }
 
-export class BlockChainError extends Error {
+class BlockChainError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'BlockChainError';

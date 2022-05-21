@@ -1,8 +1,6 @@
 import {Router} from 'express';
 import type {NextFunction, Response} from 'express';
 
-import {InvalidBlockError} from '../../blockchain';
-
 import sendError from '../../utils/sendError';
 import checkBlockChainMiddleware from '../../middleware/checkBlockChainMiddleware';
 import type {AppRequest, Controller} from '../../types';
@@ -31,25 +29,25 @@ class BlocksController implements Controller {
   }
 
   private mineBlock(
-    request: AppRequest,
+    request: AppRequest<undefined, undefined, {data?: unknown} | undefined>,
     response: Response,
     next: NextFunction
   ) {
     const blockChain = request.context!.blockChain;
 
-    try {
-      blockChain.generateNextBlock(request.body.data);
-    } catch (error) {
-      if (error instanceof InvalidBlockError) {
-        sendError(response, next)(400);
-        return;
-      }
-
-      sendError(response, next)(500);
+    const data = request.body?.data;
+    if (typeof data !== 'string') {
+      sendError(response, next)(400);
       return;
     }
 
-    response.send('mine');
+    const generateNextBlockResult = blockChain.generateNextBlock(data);
+    if ('error' in generateNextBlockResult) {
+      sendError(response, next)(400);
+      return;
+    }
+
+    response.json({data});
   }
 }
 

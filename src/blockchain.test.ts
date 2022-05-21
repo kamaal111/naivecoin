@@ -27,7 +27,12 @@ test('generating next block', () => {
     );
 
   const data = 'new one';
-  const newBlock = blockChain.generateNextBlock(data);
+  const generateNextBlockResult = blockChain.generateNextBlock(data);
+  if ('error' in generateNextBlockResult) {
+    fail(generateNextBlockResult.error.message);
+  }
+
+  const {value: newBlock} = generateNextBlockResult;
 
   expect(blockChain.chainLength).toEqual(2);
   expect(newBlock.previousHash).toEqual(genesisBlock.hash);
