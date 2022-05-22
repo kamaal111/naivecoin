@@ -5,7 +5,7 @@ import sendError from '../utils/sendError';
 import checkContextMiddleware from '../middleware/checkContextMiddleware';
 import type {AppRequest, Controller} from '../types';
 
-type AddPeerPayload = {} | undefined;
+type AddPeerPayload = {peer?: unknown} | undefined;
 
 class PeersController implements Controller {
   public path = '/peers';
@@ -17,7 +17,7 @@ class PeersController implements Controller {
   }
 
   private initializeMiddleware() {
-    this.router.use(checkContextMiddleware('peerToPeer'));
+    this.router.use(checkContextMiddleware('peerToPeer', 'blockChain'));
   }
 
   private initializeRoutes() {
@@ -32,9 +32,20 @@ class PeersController implements Controller {
 
   private addPeer(
     request: AppRequest<undefined, undefined, AddPeerPayload>,
-    response: Response
+    response: Response,
+    next: NextFunction
   ) {
-    response.send('add peer');
+    const peer = request.body?.peer;
+    if (typeof peer !== 'string') {
+      sendError(response, next)(400);
+      return;
+    }
+
+    const peerToPeer = request.context!.peerToPeer;
+    peerToPeer.blockChain = request.context!.blockChain;
+    peerToPeer.connectToPeer(peer);
+
+    response.status(204).send();
   }
 }
 
