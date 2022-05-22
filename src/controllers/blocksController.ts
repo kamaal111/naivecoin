@@ -49,6 +49,7 @@ class BlocksController implements Controller {
     }
 
     const peerToPeer = request.context!.peerToPeer;
+    peerToPeer.blockChain = blockChain;
     peerToPeer.broadcastLatestBlock();
 
     response.json(generateNextBlockResult.value);
