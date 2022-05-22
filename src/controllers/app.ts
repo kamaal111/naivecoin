@@ -2,14 +2,17 @@ import * as express from 'express';
 import * as logger from 'morgan';
 
 import BlockChain from '../models/blockchain';
+import PeerToPeer from '../models/peerToPeer';
 
 import contextMiddleware from '../middleware/contextMiddleware';
 import type {AppRequest, Context, Controller} from '../types';
 
 const blockChain = new BlockChain();
+const peerToPeer = new PeerToPeer();
 
 const context: Context = {
   blockChain,
+  peerToPeer,
 };
 
 class App {

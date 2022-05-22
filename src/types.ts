@@ -1,9 +1,11 @@
 import type {Request, Router} from 'express';
 
-import type BlockChain from './blockchain';
+import type BlockChain from './models/blockchain';
+import type PeerToPeer from './models/peerToPeer';
 
 export type Context = {
   blockChain: BlockChain;
+  peerToPeer: PeerToPeer;
 };
 
 export type AppRequest<
