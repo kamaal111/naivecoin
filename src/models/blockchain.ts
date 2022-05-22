@@ -56,10 +56,9 @@ class BlockChain {
     return {ok: true, value: nextBlock};
   }
 
-  public replaceChain(blocks: Block[]) {
+  public replaceChain(blocks: Block[]): Result<void, InvalidBlockChainError> {
     if (!this.isValidChain(blocks) || blocks.length <= this.blocks.length) {
-      console.log('Received blockchain is invalid');
-      return;
+      return {ok: false, error: new InvalidBlockChainError()};
     }
 
     console.log(
@@ -67,7 +66,19 @@ class BlockChain {
     );
 
     this.setBlocks(blocks);
-    this.broadcastChanges();
+
+    return {ok: true, value: undefined};
+  }
+
+  public addToChain(newBlock: Block): Result<void, InvalidBlockError> {
+    const previousBlock = this.getLatestBlock();
+
+    const isValid = this.isValidNewBlock({newBlock, previousBlock});
+    if (!isValid) return {ok: false, error: new InvalidBlockError()};
+
+    this.appendBlock(newBlock);
+
+    return {ok: true, value: undefined};
   }
 
   private setBlocks(blocks: Block[]) {
@@ -77,8 +88,6 @@ class BlockChain {
   private appendBlock(block: Block) {
     this._blocks.push(block);
   }
-
-  private broadcastChanges() {}
 
   private isValidChain(blocks: Block[]) {
     const isValidGenesisBlock =
@@ -94,17 +103,6 @@ class BlockChain {
     }
 
     return true;
-  }
-
-  private addToChain(newBlock: Block): Result<void, InvalidBlockError> {
-    const previousBlock = this.getLatestBlock();
-
-    const isValid = this.isValidNewBlock({newBlock, previousBlock});
-    if (!isValid) return {ok: false, error: new InvalidBlockError()};
-
-    this.appendBlock(newBlock);
-
-    return {ok: true, value: undefined};
   }
 
   private calculateHashForBlock(block: Block) {
@@ -140,6 +138,13 @@ export class InvalidBlockError extends BlockChainError {
   constructor() {
     super('Invalid block provided');
     this.name = 'InvalidBlockError';
+  }
+}
+
+export class InvalidBlockChainError extends BlockChainError {
+  constructor() {
+    super('Invalid block chain provided');
+    this.name = 'InvalidBlockChainError';
   }
 }
 

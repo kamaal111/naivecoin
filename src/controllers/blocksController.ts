@@ -17,7 +17,7 @@ class BlocksController implements Controller {
   }
 
   private initializeMiddleware() {
-    this.router.use(checkContextMiddleware('blockChain'));
+    this.router.use(checkContextMiddleware('blockChain', 'peerToPeer'));
   }
 
   private initializeRoutes() {
@@ -47,6 +47,9 @@ class BlocksController implements Controller {
       sendError(response, next)(400);
       return;
     }
+
+    const peerToPeer = request.context!.peerToPeer;
+    peerToPeer.broadcastLatestBlock();
 
     response.json(generateNextBlockResult.value);
   }

@@ -4,21 +4,11 @@ import type BlockChain from './blockchain';
 import type Block from './block';
 
 import {jsonToObject} from '../utils/json';
+import {SocketMessageType} from '../enums';
+import type {SocketMessage} from '../types';
 
 type WebSocketPrivateAPIs = {
   _socket: {remoteAddress: string; remotePort: string};
-};
-
-enum MessageType {
-  QUERY_LATEST = 0,
-  QUERY_ALL = 1,
-  RESPONSE_BLOCKCHAIN = 2,
-  ERROR = 3,
-}
-
-type Message = {
-  type: MessageType;
-  data: string | null;
 };
 
 class PeerToPeer {
@@ -45,13 +35,27 @@ class PeerToPeer {
     });
   }
 
+  public broadcastLatestBlock() {
+    if (this.blockChain == null) return;
+
+    this.broadcast({
+      message: {
+        type: SocketMessageType.RESPONSE_BLOCKCHAIN,
+        data: JSON.stringify([this.blockChain.getLatestBlock()]),
+      },
+    });
+  }
+
   private initializeConnection(socket: WebSocket) {
     this.addToSockets(socket);
 
     this.initializeMessageHandler(socket);
     this.initializeErrorHandler(socket);
 
-    this.send({socket, message: {type: MessageType.QUERY_LATEST, data: null}});
+    this.send({
+      socket,
+      message: {type: SocketMessageType.QUERY_LATEST, data: null},
+    });
   }
 
   private initializeMessageHandler(socket: WebSocket) {
@@ -61,7 +65,7 @@ class PeerToPeer {
         return;
       }
 
-      const objectResult = jsonToObject<Message>(data);
+      const objectResult = jsonToObject<SocketMessage>(data);
       if ('error' in objectResult) {
         this.sendError({socket, message: 'Invalid message sent'});
         return;
@@ -83,32 +87,26 @@ class PeerToPeer {
       }
 
       switch (message.type) {
-        case MessageType.QUERY_ALL:
+        case SocketMessageType.QUERY_ALL:
           this.send({
             socket,
             message: {
-              type: MessageType.RESPONSE_BLOCKCHAIN,
+              type: SocketMessageType.RESPONSE_BLOCKCHAIN,
               data: JSON.stringify(blockChain.blocks),
             },
           });
           break;
-        case MessageType.QUERY_LATEST:
-          this.send({
-            socket,
-            message: {
-              type: MessageType.RESPONSE_BLOCKCHAIN,
-              data: JSON.stringify([blockChain.getLatestBlock()]),
-            },
-          });
+        case SocketMessageType.QUERY_LATEST:
+          this.broadcastLatestBlock();
           break;
-        case MessageType.RESPONSE_BLOCKCHAIN:
+        case SocketMessageType.RESPONSE_BLOCKCHAIN:
           this.handleBlockChainResponse({
             socket,
             messageData: message.data,
             blockChain,
           });
           break;
-        case MessageType.ERROR:
+        case SocketMessageType.ERROR:
           return;
         default:
           break;
@@ -157,10 +155,39 @@ class PeerToPeer {
     const latestBlockHeld = blockChain.getLatestBlock();
     if (latestBlockReceived.index <= latestBlockHeld.index) return; // do nothing everything is well
 
-    // TODO: GO ON HERE
+    if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
+      const addToChainResult = blockChain.addToChain(latestBlockReceived);
+      if ('error' in addToChainResult) {
+        this.sendError({socket, message: addToChainResult.error.message});
+        return;
+      }
+
+      this.broadcastLatestBlock();
+      return;
+    }
+
+    if (receivedBlocks.length === 1) {
+      this.broadcast({
+        message: {type: SocketMessageType.QUERY_ALL, data: null},
+      });
+
+      return;
+    }
+
+    const replaceChainResult = blockChain.replaceChain(receivedBlocks);
+    if ('error' in replaceChainResult) {
+      this.sendError({socket, message: replaceChainResult.error.message});
+      return;
+    }
+
+    this.broadcastLatestBlock();
   }
 
-  private send({socket, message}: {socket: WebSocket; message: Message}) {
+  private broadcast({message}: {message: SocketMessage}) {
+    this.sockets.forEach(async socket => this.send({socket, message}));
+  }
+
+  private send({socket, message}: {socket: WebSocket; message: SocketMessage}) {
     socket.send(JSON.stringify(message));
   }
 
@@ -168,7 +195,7 @@ class PeerToPeer {
     this.send({
       socket,
       message: {
-        type: MessageType.ERROR,
+        type: SocketMessageType.ERROR,
         data: JSON.stringify({details: message}),
       },
     });
