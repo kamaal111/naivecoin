@@ -17,19 +17,24 @@ const context: Context = {
 
 class App {
   public app = express();
-  public port: string;
 
-  constructor({port, controllers}: {port: string; controllers: Controller[]}) {
-    this.port = port;
-
+  constructor({controllers}: {controllers: Controller[]}) {
     this.initializeMiddleware();
     this.initializeRoutes(controllers);
   }
 
-  public listen() {
-    this.app.listen(this.port, () => {
-      console.log(`listening on port ${this.port}`);
+  public listen({
+    serverPort,
+    socketsPort,
+  }: {
+    serverPort: string;
+    socketsPort: number;
+  }) {
+    this.app.listen(serverPort, () => {
+      console.log(`listening on port ${serverPort}`);
     });
+
+    peerToPeer.listen(socketsPort);
   }
 
   private initializeMiddleware() {

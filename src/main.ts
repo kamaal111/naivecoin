@@ -8,5 +8,5 @@ const blocksController = new BlocksController();
 const peersController = new PeersController();
 const controllers = [blocksController, peersController];
 
-const app = new App({port: config.PORT, controllers});
-app.listen();
+const app = new App({controllers});
+app.listen({serverPort: config.SERVER_PORT, socketsPort: config.SOCKETS_PORT});

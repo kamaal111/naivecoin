@@ -46,6 +46,16 @@ class PeerToPeer {
     });
   }
 
+  public listen(port: number) {
+    const server = new WebSocket.Server({port});
+
+    server.on('connection', socket => {
+      this.initializeConnection(socket);
+    });
+
+    console.log(`listening on port ${port}`);
+  }
+
   private initializeConnection(socket: WebSocket) {
     this.addToSockets(socket);
 
