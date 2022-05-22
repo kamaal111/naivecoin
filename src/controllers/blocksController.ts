@@ -5,6 +5,8 @@ import sendError from '../utils/sendError';
 import checkBlockChainMiddleware from '../middleware/checkBlockChainMiddleware';
 import type {AppRequest, Controller} from '../types';
 
+type MineBlockPayload = {data?: unknown} | undefined;
+
 class BlocksController implements Controller {
   public path = '/blocks';
   public router = Router();
@@ -29,7 +31,7 @@ class BlocksController implements Controller {
   }
 
   private mineBlock(
-    request: AppRequest<undefined, undefined, {data?: unknown} | undefined>,
+    request: AppRequest<undefined, undefined, MineBlockPayload>,
     response: Response,
     next: NextFunction
   ) {
