@@ -2,7 +2,7 @@ import {Router} from 'express';
 import type {NextFunction, Response} from 'express';
 
 import sendError from '../utils/sendError';
-import checkBlockChainMiddleware from '../middleware/checkBlockChainMiddleware';
+import checkContextMiddleware from '../middleware/checkContextMiddleware';
 import type {AppRequest, Controller} from '../types';
 
 type MineBlockPayload = {data?: unknown} | undefined;
@@ -17,7 +17,7 @@ class BlocksController implements Controller {
   }
 
   private initializeMiddleware() {
-    this.router.use(checkBlockChainMiddleware);
+    this.router.use(checkContextMiddleware('blockChain'));
   }
 
   private initializeRoutes() {
