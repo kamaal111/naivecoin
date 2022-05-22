@@ -49,8 +49,7 @@ class PeerToPeer {
     this.addToSockets(socket);
 
     this.initializeMessageHandler(socket);
-
-    // Make error handler
+    this.initializeErrorHandler(socket);
 
     this.send({socket, message: {type: MessageType.QUERY_LATEST, data: null}});
   }
@@ -117,6 +116,11 @@ class PeerToPeer {
     });
   }
 
+  private initializeErrorHandler(socket: WebSocket) {
+    socket.on('close', () => this.removeFromSockets(socket));
+    socket.on('error', () => this.removeFromSockets(socket));
+  }
+
   private handleBlockChainResponse({
     socket,
     messageData,
@@ -172,6 +176,13 @@ class PeerToPeer {
 
   private addToSockets(socket: WebSocket) {
     this._sockets.push(socket);
+  }
+
+  private removeFromSockets(socket: WebSocket) {
+    const index = this._sockets.findIndex(value => value === socket);
+    if (index === -1) return;
+
+    this._sockets.splice(index, 1);
   }
 }
 
