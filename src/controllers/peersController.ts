@@ -2,8 +2,8 @@ import {Router} from 'express';
 import type {Controller} from '../types';
 
 class PeersController implements Controller {
-  path = '/peers';
-  router = Router();
+  public path = '/peers';
+  public router = Router();
 
   constructor() {
     this.initializeMiddleware();

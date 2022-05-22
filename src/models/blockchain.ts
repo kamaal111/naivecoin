@@ -1,7 +1,7 @@
-import Block from './models/block';
+import Block from './block';
 
-import {calculateHash} from './utils/hashing';
-import type {Result} from './types';
+import {calculateHash} from '../utils/hashing';
+import type {Result} from '../types';
 
 const GENESIS_BLOCK = new Block({
   index: 0,

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as logger from 'morgan';
 
-import BlockChain from '../blockchain';
+import BlockChain from '../models/blockchain';
 
 import contextMiddleware from '../middleware/contextMiddleware';
 import type {AppRequest, Context, Controller} from '../types';
