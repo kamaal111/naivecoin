@@ -33,6 +33,10 @@ class PeerToPeer {
     socket.on('open', () => {
       this.initializeConnection(socket);
     });
+
+    socket.on('error', () => {
+      console.log('connection failed');
+    });
   }
 
   public broadcastLatestBlock() {
