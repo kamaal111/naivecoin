@@ -4,6 +4,8 @@ import type {NextFunction, Response} from 'express';
 import sendError from '../utils/sendError';
 import checkContextMiddleware from '../middleware/checkContextMiddleware';
 import type {AppRequest, Controller} from '../types';
+import type BlockChain from '../models/blockchain';
+import type PeerToPeer from '../models/peerToPeer';
 
 type MineBlockPayload = {data?: unknown} | undefined;
 
@@ -42,17 +44,32 @@ class BlocksController implements Controller {
     }
 
     const blockChain = request.context!.blockChain;
+    const peerToPeer = request.context!.peerToPeer;
+    this.generateAndBroadcastNextBlock({blockChain, peerToPeer, data});
+
+    response.status(204).send();
+  }
+
+  private async generateAndBroadcastNextBlock({
+    blockChain,
+    peerToPeer,
+    data,
+  }: {
+    blockChain: BlockChain;
+    peerToPeer: PeerToPeer;
+    data: string;
+  }) {
     const generateNextBlockResult = await blockChain.generateNextBlock(data);
     if ('error' in generateNextBlockResult) {
-      sendError(response, next)(400);
+      console.log(
+        'error while generating next block; error:',
+        generateNextBlockResult.error
+      );
       return;
     }
 
-    const peerToPeer = request.context!.peerToPeer;
     peerToPeer.blockChain = blockChain;
     peerToPeer.broadcastLatestBlock();
-
-    response.json(generateNextBlockResult.value);
   }
 }
 
