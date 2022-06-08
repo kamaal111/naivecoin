@@ -6,7 +6,7 @@ import hexToBinary from '../utils/hexToBinary';
 
 const GENESIS_BLOCK = new Block({
   index: 0,
-  hash: 'cd2fb2ace926608315b2a5bd1bc2a259dce057a21ed63351adc0b1326da2a99e',
+  hash: '0bfd5d0a0adbdf53e43d1babbc6ff9af8c7a64fae404f9f2bac92c548b39fba9',
   previousHash: null,
   timestamp: 1652722519,
   data: 'The Genesis block!!!',

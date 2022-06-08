@@ -11,6 +11,8 @@ test('genesis block is hashed correctly', () => {
       previousHash: undefined,
       timestamp: genesisBlock.timestamp,
       data: genesisBlock.data,
+      difficulty: genesisBlock.difficulty,
+      nonce: genesisBlock.nonce,
     })
   ).toEqual(genesisBlock.hash);
 });
@@ -40,6 +42,6 @@ test('generating next block', () => {
   expect(newBlock.index).toEqual(1);
   expect(newBlock.timestamp).toEqual(1652738518);
   expect(newBlock.hash).toEqual(
-    '5cf301933dd0af0dbd69fa472ab3bea9ce99d31442da41b4112be41ef249a74c'
+    '18e1b9e326dca672d34ff40aa308bc5e52134528d404388aed552479e5a02e9b'
   );
 });
