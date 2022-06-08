@@ -17,7 +17,7 @@ test('genesis block is hashed correctly', () => {
   ).toEqual(genesisBlock.hash);
 });
 
-test('generating next block', () => {
+test('generating next block', async () => {
   const blockChain = new BlockChain();
 
   const genesisBlock = BlockChain.GENESIS_BLOCK;
@@ -29,7 +29,7 @@ test('generating next block', () => {
     );
 
   const data = 'new one';
-  const generateNextBlockResult = blockChain.generateNextBlock(data);
+  const generateNextBlockResult = await blockChain.generateNextBlock(data);
   if ('error' in generateNextBlockResult) {
     fail(generateNextBlockResult.error.message);
   }
