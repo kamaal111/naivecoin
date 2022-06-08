@@ -5,13 +5,19 @@ export const calculateHash = ({
   previousHash,
   timestamp,
   data,
+  difficulty,
+  nonce,
 }: {
   index: number;
   previousHash: string | null | undefined;
   timestamp: number;
   data: string;
+  difficulty: number;
+  nonce: number;
 }): string => {
-  const message = `${index}${previousHash ?? ''}${timestamp}${data}`;
+  const message = `${index}${
+    previousHash ?? ''
+  }${timestamp}${data}${difficulty}${nonce}`;
   const hash = SHA256(message);
   return hash.toString();
 };

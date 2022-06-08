@@ -2,6 +2,7 @@ import Block from './block';
 
 import {calculateHash} from '../utils/hashing';
 import type {Result} from '../types';
+import hexToBinary from '../utils/hexToBinary';
 
 const GENESIS_BLOCK = new Block({
   index: 0,
@@ -9,7 +10,15 @@ const GENESIS_BLOCK = new Block({
   previousHash: null,
   timestamp: 1652722519,
   data: 'The Genesis block!!!',
+  difficulty: 0,
+  nonce: 0,
 });
+
+// in seconds
+const BLOCK_GENERATION_INTERVAL = 10;
+
+// in blocks
+const DIFFICULTY_ADJUSTMENT_INTERVAL = 10;
 
 class BlockChain {
   private _blocks: Block[];
@@ -26,26 +35,22 @@ class BlockChain {
     return this.blocks.length;
   }
 
-  public getLatestBlock() {
+  public get latestBlock() {
     return this.blocks[this.chainLength - 1];
   }
 
   public generateNextBlock(data: string): Result<Block, InvalidBlockError> {
-    const {index: previousIndex, hash: previousHash} = this.getLatestBlock();
+    const {index: previousIndex, hash: previousHash} = this.latestBlock;
     const index = previousIndex + 1;
     const timestamp = Math.floor(Date.now() / 1000);
+    const difficulty = this.getDifficulty();
 
-    const hashPayload = {
+    const nextBlock = this.findBlock({
       index,
       previousHash,
       timestamp,
       data,
-    };
-
-    const hash = calculateHash(hashPayload);
-    const nextBlock = new Block({
-      ...hashPayload,
-      hash,
+      difficulty,
     });
 
     const addToChainResult = this.addToChain(nextBlock);
@@ -71,7 +76,7 @@ class BlockChain {
   }
 
   public addToChain(newBlock: Block): Result<void, InvalidBlockError> {
-    const previousBlock = this.getLatestBlock();
+    const previousBlock = this.latestBlock;
 
     const isValid = this.isValidNewBlock({newBlock, previousBlock});
     if (!isValid) return {ok: false, error: new InvalidBlockError()};
@@ -79,6 +84,61 @@ class BlockChain {
     this.appendBlock(newBlock);
 
     return {ok: true, value: undefined};
+  }
+
+  private findBlock(payload: {
+    index: number;
+    previousHash: string | null | undefined;
+    timestamp: number;
+    data: string;
+    difficulty: number;
+  }) {
+    let nonce = 0;
+    while (true) {
+      const hash = calculateHash({...payload, nonce});
+      if (this.hashMatchesDifficulty(hash, payload.difficulty)) {
+        return new Block({...payload, hash, nonce});
+      }
+      nonce += 1;
+    }
+  }
+
+  private hashMatchesDifficulty(hash: string, difficulty: number) {
+    const hashInBinary = hexToBinary(hash);
+    if (hashInBinary == null) return false;
+
+    const requiredPrefix = '0'.repeat(difficulty);
+    return hashInBinary.startsWith(requiredPrefix);
+  }
+
+  private getDifficulty() {
+    if (
+      this.latestBlock.index !== 0 &&
+      this.latestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0
+    ) {
+      return this.getAdjustedDifficulty();
+    }
+
+    return this.latestBlock.difficulty;
+  }
+
+  private getAdjustedDifficulty() {
+    const prevAdjustmentBlock =
+      this.blocks[this.blocks.length - DIFFICULTY_ADJUSTMENT_INTERVAL];
+    const timeExpected =
+      BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSTMENT_INTERVAL;
+    const timeTaken =
+      this.latestBlock.timestamp - prevAdjustmentBlock.timestamp;
+
+    if (timeTaken < timeExpected / 2) {
+      return prevAdjustmentBlock.difficulty + 1;
+    }
+
+    if (timeTaken > timeExpected * 2) {
+      return prevAdjustmentBlock.difficulty - 1;
+    }
+
+    return prevAdjustmentBlock.difficulty;
   }
 
   private setBlocks(blocks: Block[]) {

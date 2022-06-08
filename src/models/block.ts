@@ -1,9 +1,11 @@
 export class Block {
   public index: number;
   public hash: string;
-  public previousHash?: string | null;
+  public previousHash?: string | null | undefined;
   public timestamp: number;
   public data: string;
+  public difficulty: number;
+  public nonce: number;
 
   constructor({
     index,
@@ -11,18 +13,24 @@ export class Block {
     previousHash,
     timestamp,
     data,
+    difficulty,
+    nonce,
   }: {
     index: number;
     hash: string;
-    previousHash: string | null;
+    previousHash: string | null | undefined;
     timestamp: number;
     data: string;
+    difficulty: number;
+    nonce: number;
   }) {
     this.index = index;
     this.previousHash = previousHash;
     this.timestamp = timestamp;
     this.data = data;
     this.hash = hash;
+    this.difficulty = difficulty;
+    this.nonce = nonce;
 
     Object.freeze(this);
   }
@@ -37,6 +45,8 @@ export class Block {
       previousHash: this.previousHash,
       timestamp: this.timestamp,
       data: this.data,
+      difficulty: this.difficulty,
+      nonce: this.nonce,
     };
   }
 

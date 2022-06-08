@@ -45,7 +45,7 @@ class PeerToPeer {
     this.broadcast({
       message: {
         type: SocketMessageType.RESPONSE_BLOCKCHAIN,
-        data: JSON.stringify([this.blockChain.getLatestBlock()]),
+        data: JSON.stringify([this.blockChain.latestBlock]),
       },
     });
   }
@@ -166,7 +166,7 @@ class PeerToPeer {
       return;
     }
 
-    const latestBlockHeld = blockChain.getLatestBlock();
+    const latestBlockHeld = blockChain.latestBlock;
     if (latestBlockReceived.index <= latestBlockHeld.index) return; // do nothing everything is well
 
     if (latestBlockHeld.hash === latestBlockReceived.previousHash) {

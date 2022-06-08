@@ -69,7 +69,8 @@
   "eslintConfig": {
     "extends": "./node_modules/gts/",
     "rules": {
-      "eqeqeq": "off"
+      "eqeqeq": "off",
+      "no-constant-condition": "off"
     }
   },
   "eslintIgnore": [
