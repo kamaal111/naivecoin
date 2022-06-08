@@ -30,7 +30,7 @@ class BlocksController implements Controller {
     response.json(blocks);
   }
 
-  private mineBlock(
+  private async mineBlock(
     request: AppRequest<undefined, undefined, MineBlockPayload>,
     response: Response,
     next: NextFunction
@@ -42,7 +42,7 @@ class BlocksController implements Controller {
     }
 
     const blockChain = request.context!.blockChain;
-    const generateNextBlockResult = blockChain.generateNextBlock(data);
+    const generateNextBlockResult = await blockChain.generateNextBlock(data);
     if ('error' in generateNextBlockResult) {
       sendError(response, next)(400);
       return;

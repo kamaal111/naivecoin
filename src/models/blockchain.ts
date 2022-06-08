@@ -39,13 +39,15 @@ class BlockChain {
     return this.blocks[this.chainLength - 1];
   }
 
-  public generateNextBlock(data: string): Result<Block, InvalidBlockError> {
+  public async generateNextBlock(
+    data: string
+  ): Promise<Result<Block, InvalidBlockError>> {
     const {index: previousIndex, hash: previousHash} = this.latestBlock;
     const index = previousIndex + 1;
     const timestamp = Math.floor(Date.now() / 1000);
     const difficulty = this.getDifficulty();
 
-    const nextBlock = this.findBlock({
+    const nextBlock = await this.findBlock({
       index,
       previousHash,
       timestamp,
@@ -86,21 +88,23 @@ class BlockChain {
     return {ok: true, value: undefined};
   }
 
-  private findBlock(payload: {
+  private async findBlock(payload: {
     index: number;
     previousHash: string | null | undefined;
     timestamp: number;
     data: string;
     difficulty: number;
   }) {
-    let nonce = 0;
-    while (true) {
-      const hash = calculateHash({...payload, nonce});
-      if (this.hashMatchesDifficulty(hash, payload.difficulty)) {
-        return new Block({...payload, hash, nonce});
+    return new Promise((resolve: (value: Block) => void) => {
+      let nonce = 0;
+      while (true) {
+        const hash = calculateHash({...payload, nonce});
+        if (this.hashMatchesDifficulty(hash, payload.difficulty)) {
+          return resolve(new Block({...payload, hash, nonce}));
+        }
+        nonce += 1;
       }
-      nonce += 1;
-    }
+    });
   }
 
   private hashMatchesDifficulty(hash: string, difficulty: number) {
