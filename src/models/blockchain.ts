@@ -64,7 +64,11 @@ class BlockChain {
   }
 
   public replaceChain(blocks: Block[]): Result<void, InvalidBlockChainError> {
-    if (!this.isValidChain(blocks) || blocks.length <= this.blocks.length) {
+    if (
+      !this.isValidChain(blocks) ||
+      this.getAccumulatedDifficulty(blocks) <=
+        this.getAccumulatedDifficulty(this.blocks)
+    ) {
       return {ok: false, error: new InvalidBlockChainError()};
     }
 
@@ -105,6 +109,14 @@ class BlockChain {
         nonce += 1;
       }
     });
+  }
+
+  private getAccumulatedDifficulty(blockchain: Block[]) {
+    return blockchain.reduce(
+      (accumulatedDifficulty, block) =>
+        accumulatedDifficulty + Math.pow(2, block.difficulty),
+      0
+    );
   }
 
   private hashMatchesDifficulty(hash: string, difficulty: number) {
