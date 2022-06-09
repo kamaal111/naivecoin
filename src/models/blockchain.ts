@@ -44,7 +44,7 @@ class BlockChain {
   ): Promise<Result<Block, InvalidBlockError>> {
     const {index: previousIndex, hash: previousHash} = this.latestBlock;
     const index = previousIndex + 1;
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = this.getCurrentTimestamp();
     const difficulty = this.getDifficulty();
 
     const nextBlock = await this.findBlock({
@@ -173,6 +173,23 @@ class BlockChain {
     return calculateHash(block.hashPayload);
   }
 
+  private getCurrentTimestamp() {
+    return Math.round(new Date().getTime() / 1000);
+  }
+
+  private isValidTimestamp({
+    newBlock,
+    previousBlock,
+  }: {
+    newBlock: Block;
+    previousBlock: Block;
+  }) {
+    return (
+      previousBlock.timestamp - 60 < newBlock.timestamp && // A block in the chain is valid, if the timestamp is at most 1 min in the past of the previous block.
+      newBlock.timestamp - 60 < this.getCurrentTimestamp() // A block is valid, if the timestamp is at most 1 min in the future from the time we perceive.
+    );
+  }
+
   private isValidNewBlock({
     newBlock,
     previousBlock,
@@ -183,6 +200,7 @@ class BlockChain {
     return (
       newBlock.isValidBlockStructure &&
       previousBlock.index + 1 === newBlock.index &&
+      this.isValidTimestamp({newBlock, previousBlock}) &&
       previousBlock.hash === newBlock.previousHash &&
       newBlock.hash === this.calculateHashForBlock(newBlock)
     );
