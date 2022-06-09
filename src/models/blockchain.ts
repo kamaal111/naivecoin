@@ -174,7 +174,7 @@ class BlockChain {
   }
 
   private getCurrentTimestamp() {
-    return Math.round(new Date().getTime() / 1000);
+    return Math.floor(Date.now() / 1000);
   }
 
   private isValidTimestamp({
